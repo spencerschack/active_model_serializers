@@ -92,8 +92,8 @@ module ActiveModel
           end
         end
 
-        def serialize_ids
-          object.map do |item|
+        def serialize_ids node
+          node[key] = object.map do |item|
             serializer = find_serializable(item)
             if serializer.respond_to?(embed_key)
               serializer.send(embed_key)
@@ -146,7 +146,7 @@ module ActiveModel
           end
         end
 
-        def serialize_ids
+        def serialize_ids node
           if object
             serializer = find_serializable(object)
             id =
@@ -157,12 +157,17 @@ module ActiveModel
               end
 
             if polymorphic?
-              {
-                type: polymorphic_key,
-                id: id
-              }
+              node[:"#{key}_type"] = polymorphic_key
+              node[:"#{key}_id"]   = id
             else
-              id
+              node[key] = id
+            end
+          else
+            if polymorphic?
+              node[:"#{key}_type"] = nil
+              node[:"#{key}_id"] = nil
+            else
+              node[key] = nil
             end
           end
         end

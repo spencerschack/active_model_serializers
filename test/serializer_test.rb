@@ -1154,10 +1154,8 @@ class SerializerTest < ActiveModel::TestCase
     assert_equal({
       name: 'logo.png',
       url: 'http://example.com/logo.png',
-      attachable: {
-        type: :email,
-        id: 1
-      }
+      attachable_type: :email,
+      attachable_id: 1
     }, actual)
   end
 
@@ -1193,10 +1191,9 @@ class SerializerTest < ActiveModel::TestCase
       attachment: {
         name: 'logo.png',
         url: 'http://example.com/logo.png',
-        attachable: {
-          type: :email,
-          id: 1
-        }},
+        attachable_type: :email,
+        attachable_id: 1
+      },
       emails: [{
         id: 1,
         subject: "Hello",
@@ -1275,15 +1272,19 @@ class SerializerTest < ActiveModel::TestCase
       oranges: [{
         plu: "3027",
         id: 1,
-        readable: { type: :email, id: 1 }
+        readable_type: :email,
+        readable_id: 1
       }],
 
       attachment: {
         name: 'logo.png',
         url: 'http://example.com/logo.png',
-        attachable: { type: :email, id: 1 },
-        readable: { type: :email, id: 1 },
-        edible: { type: :orange, id: 1 }
+        attachable_type: :email,
+        attachable_id: 1,
+        readable_type: :email,
+        readable_id: 1,
+        edible_type: :orange,
+        edible_id: 1
       }
     }, actual)
   end
@@ -1378,7 +1379,8 @@ class SerializerTest < ActiveModel::TestCase
     assert_equal({
       post: {
         title: 'Foo',
-        author: nil
+        author_id: nil,
+        author_type: nil
       }
     }, actual)
   end
