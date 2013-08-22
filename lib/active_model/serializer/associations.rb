@@ -32,6 +32,7 @@ module ActiveModel
         @embed_objects = embed == :object || embed == :objects
         @embed_key     = options[:embed_key] || :id
         @embed_in_root = options[:include]
+        @polymorphic   = options[:polymorphic]
 
         serializer = options[:serializer]
         @serializer_class = serializer.is_a?(String) ? serializer.constantize : serializer
@@ -59,7 +60,12 @@ module ActiveModel
 
       private
 
-      attr_reader :embed_key, :serializer_class, :options, :serializer_options
+      attr_reader :embed_key, :serializer_class, :options, :serializer_options, :polymorphic
+      alias polymorphic? polymorphic
+
+      def polymorphic_key
+        object.class.to_s.demodulize.underscore.to_sym
+      end
 
       def find_serializable(object)
         if serializer_class
@@ -95,20 +101,24 @@ module ActiveModel
         def serialize_ids node
           node[key] = object.map do |item|
             serializer = find_serializable(item)
-            if serializer.respond_to?(embed_key)
+            id = if serializer.respond_to?(embed_key)
               serializer.send(embed_key)
             else
               item.read_attribute_for_serialization(embed_key)
+            end
+            if polymorphic?
+              {
+                id: id,
+                type: polymorphic_key
+              }
+            else
+              id
             end
           end
         end
       end
 
       class HasOne < Association #:nodoc:
-        def initialize(name, options={}, serializer_options={})
-          super
-          @polymorphic = options[:polymorphic]
-        end
 
         def root
           if root = options[:root]
@@ -174,16 +184,10 @@ module ActiveModel
 
         private
 
-        attr_reader :polymorphic
-        alias polymorphic? polymorphic
-
         def use_id_key?
           embed_ids? && !polymorphic?
         end
 
-        def polymorphic_key
-          object.class.to_s.demodulize.underscore.to_sym
-        end
       end
     end
   end
