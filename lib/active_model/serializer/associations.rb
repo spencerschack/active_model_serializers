@@ -63,7 +63,7 @@ module ActiveModel
       attr_reader :embed_key, :serializer_class, :options, :serializer_options, :polymorphic
       alias polymorphic? polymorphic
 
-      def polymorphic_key
+      def polymorphic_key object = object
         object.class.to_s.demodulize.underscore.to_sym
       end
 
@@ -109,7 +109,7 @@ module ActiveModel
             if polymorphic?
               {
                 id: id,
-                type: polymorphic_key
+                type: polymorphic_key(item)
               }
             else
               id
