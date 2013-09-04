@@ -405,7 +405,7 @@ module ActiveModel
     # we want to merge a new list of values.
     def merge_association(hash, serializables, unique_values)
       serializables.each do |serializable|
-        key = serializable.class.to_s.pluralize.demodulize.underscore.to_sym
+        key = serializable.object.class.to_s.pluralize.demodulize.underscore.to_sym
         already_serialized = (unique_values[key] ||= {})
         serializable_hashes = (hash[key] ||= [])
         unless already_serialized.include? serializable.object
