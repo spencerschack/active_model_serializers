@@ -387,7 +387,7 @@ module ActiveModel
         if association.embed_in_root? && hash.nil?
           raise IncludeError.new(self.class, association.name)
         elsif association.embed_in_root? && association.embeddable?
-          merge_association hash, association.serializables, unique_values
+          merge_association hash, association.root, association.serializables, unique_values
         end
       elsif association.embed_objects?
         node[association.key] = association.serialize
@@ -403,9 +403,8 @@ module ActiveModel
     # a unique list of all of the objects that are already in the Array. This
     # avoids the need to scan through the Array looking for entries every time
     # we want to merge a new list of values.
-    def merge_association(hash, serializables, unique_values)
+    def merge_association(hash, key, serializables, unique_values)
       serializables.each do |serializable|
-        key = serializable.object.class.to_s.pluralize.demodulize.underscore.to_sym
         already_serialized = (unique_values[key] ||= {})
         serializable_hashes = (hash[key] ||= [])
         unless already_serialized.include? serializable.object
