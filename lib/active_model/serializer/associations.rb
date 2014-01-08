@@ -79,7 +79,13 @@ module ActiveModel
 
       class HasMany < Association #:nodoc:
         def root
-          options[:root] || name
+          if root = options[:root]
+            root
+          elsif polymorphic?
+            object.first.class.to_s.pluralize.demodulize.underscore.to_sym
+          else
+            name
+          end
         end
 
         def id_key
