@@ -25,8 +25,8 @@ module ActiveModel
   module Serializable
     def as_json(args={})
       if root = args[:root] || options[:root]
-        options[:hash] = hash = {}
-        options[:unique_values] = {}
+        options[:hash] = hash = {}.with_indifferent_access
+        options[:unique_values] = {}.with_indifferent_access
 
         hash.merge!(root => serialize)
         include_meta hash
