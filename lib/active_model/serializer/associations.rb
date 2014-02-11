@@ -104,8 +104,8 @@ module ActiveModel
           end
         end
 
-        def serialize_ids node
-          node[key] = object.map do |item|
+        def serialize_ids
+          object.map do |item|
             serializer = find_serializable(item)
             id = if serializer.respond_to?(embed_key)
               serializer.send(embed_key)
