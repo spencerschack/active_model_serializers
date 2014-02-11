@@ -382,7 +382,7 @@ module ActiveModel
       association = association_class.new(name, options, self.options)
 
       if association.embed_ids?
-        association.serialize_ids(node)
+        node[association.key] = association.serialize_ids
 
         if association.embed_in_root? && hash.nil?
           raise IncludeError.new(self.class, association.name)

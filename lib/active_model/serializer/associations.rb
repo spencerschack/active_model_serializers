@@ -162,29 +162,24 @@ module ActiveModel
           end
         end
 
-        def serialize_ids node
-          if object
-            serializer = find_serializable(object)
-            id =
-              if serializer.respond_to?(embed_key)
-                serializer.send(embed_key)
-              else
-                object.read_attribute_for_serialization(embed_key)
-              end
+        def serialize_ids
+          id_key = "#{@name}_id".to_sym
 
-            if polymorphic?
-              node[:"#{key}_type"] = polymorphic_key
-              node[:"#{key}_id"]   = id
+          if polymorphic?
+            if associated_object
+              {
+                :type => polymorphic_key,
+                :id => associated_object.read_attribute_for_serialization(embed_key)
+              }
             else
-              node[key] = id
+              nil
             end
+          elsif !option(:embed_key) && !source_serializer.respond_to?(@name.to_s) && source_serializer.object.respond_to?(id_key)
+            source_serializer.object.read_attribute_for_serialization(id_key)
+          elsif associated_object
+            associated_object.read_attribute_for_serialization(embed_key)
           else
-            if polymorphic?
-              node[:"#{key}_type"] = nil
-              node[:"#{key}_id"] = nil
-            else
-              node[key] = nil
-            end
+            nil
           end
         end
 
