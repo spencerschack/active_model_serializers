@@ -166,7 +166,7 @@ module ActiveModel
           id_key = "#{@name}_id".to_sym
 
           if polymorphic?
-            if associated_object
+            if object
               {
                 :type => polymorphic_key,
                 :id => associated_object.read_attribute_for_serialization(embed_key)
