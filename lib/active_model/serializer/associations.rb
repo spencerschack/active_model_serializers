@@ -45,7 +45,6 @@ module ActiveModel
       alias embeddable? object
       alias embed_objects? embed_objects
       alias embed_ids? embed_ids
-      alias use_id_key? embed_ids?
       alias embed_in_root? embed_in_root
 
       def key
@@ -56,6 +55,10 @@ module ActiveModel
         else
           name
         end
+      end
+
+      def use_id_key?
+        embed_ids? && !polymorphic?
       end
 
       private
@@ -137,7 +140,7 @@ module ActiveModel
         end
 
         def id_key
-          "#{name}_id".to_sym
+          :"#{name}_id"
         end
 
         def embeddable?
@@ -181,12 +184,6 @@ module ActiveModel
               id
             end
           end
-        end
-
-        private
-
-        def use_id_key?
-          embed_ids? && !polymorphic?
         end
 
       end
