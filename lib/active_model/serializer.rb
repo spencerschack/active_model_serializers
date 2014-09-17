@@ -43,7 +43,6 @@ module ActiveModel
     extend ActiveSupport::DescendantsTracker
 
     include ActiveModel::Serializable
-    include ActiveModel::Serializer::Caching
 
     INCLUDE_METHODS = {}
     INSTRUMENT = { serialize: :"serialize.serializer", associations: :"associations.serializer" }
@@ -323,7 +322,13 @@ module ActiveModel
     # Returns a json representation of the serializable
     # object including the root.
     def as_json(args={})
-      super(root: args.fetch(:root, options.fetch(:root, root_name)))
+      cache_method('as_json') do
+        super(root: args.fetch(:root, options.fetch(:root, root_name)))
+      end
+    end
+
+    def serialize(*args)
+      cache_method('serialize') { serialize_object }
     end
 
     def serialize_object
@@ -333,10 +338,12 @@ module ActiveModel
     # Returns a hash representation of the serializable
     # object without the root.
     def serializable_hash
-      return nil if @object.nil?
-      @node = attributes
-      include_associations! if _embed
-      @node
+      cache_method('serializable_hash') do
+        return nil if @object.nil?
+        @node = attributes
+        include_associations! if _embed
+        @node
+      end
     end
 
     def include_associations!
@@ -446,7 +453,30 @@ module ActiveModel
       ActiveSupport::Notifications.instrument(event_name, payload, &block)
     end
 
+    def to_json(*args)
+      cache_method('to-json') { super }
+    end
+
     private
+
+    def cache_method key
+      if caching_enabled?
+        key = expand_cache_key([self.class.to_s.underscore, cache_key, key])
+        cache.fetch key do
+          yield
+        end
+      else
+        yield
+      end
+    end
+
+    def caching_enabled?
+      perform_caching && cache && respond_to?(:cache_key)
+    end
+
+    def expand_cache_key(*args)
+      ActiveSupport::Cache.expand_cache_key(args)
+    end
 
     def default_embed_options
       {

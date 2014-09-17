@@ -18,7 +18,6 @@ module ActiveModel
     extend ActiveSupport::DescendantsTracker
 
     include ActiveModel::Serializable
-    include ActiveModel::Serializer::Caching
 
     attr_reader :object, :options
 
@@ -37,6 +36,10 @@ module ActiveModel
     def initialize(object, options={})
       @object  = object
       @options = options
+    end
+
+    def serialize
+      serialize_object
     end
 
     def serialize_object
