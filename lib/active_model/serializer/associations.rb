@@ -81,6 +81,14 @@ module ActiveModel
       end
 
       class HasMany < Association #:nodoc:
+
+        def initialize *args
+          super
+          preload_associations!
+        end
+
+        include ActiveModel::Serializer::Preloading
+
         def root
           if root = options[:root]
             root
