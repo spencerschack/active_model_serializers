@@ -10,9 +10,11 @@ module ActiveModel
         # The only way we can preload associations is if object is a
         # ActiveRecord::Relation and has not been loaded.
         if object.respond_to?(:loaded?) && !object.loaded?
-          serializer = object.klass.active_model_serializer
-          options = serializer.includes_for(object.klass)
-          @object = object.includes(options)
+          serializer = options[:each_serializer] ||
+            options[:serializer] ||
+            object.klass.active_model_serializer
+          includes_options = serializer.includes_for(object.klass)
+          @object = object.includes(includes_options)
         end
       end
 

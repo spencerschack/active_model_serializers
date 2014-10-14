@@ -235,17 +235,18 @@ module ActiveModel
       end
 
       def includes_for klass, unique = {}
-        # If we don't check whether we've visited this serializer before, any
-        # cycle in associations (which are extremely common) will cause a
-        # stack overflow.
-        return if unique[self]
-        unique[self] = true
         _associations.each_with_object({}) do |(attr, (_, options)), hash|
           # If the association cannot be found it means it is computed so it
           # cannot be auto included.
           if association = klass.reflect_on_association(attr)
             serializer = options[:serializer] || association.klass.try(:active_model_serializer)
-            hash[attr] = serializer ? serializer.includes_for(association.klass, unique) : nil
+            # If we don't check whether we've visited this serializer before,
+            # any cycle in associations (which are extremely common) will cause
+            # a stack overflow.
+            hash[attr] = if serializer && !unique[serializer]
+              unique[serializer] = true
+              serializer.includes_for(association.klass, unique)
+            else {} end
           end
         end
       end
