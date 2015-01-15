@@ -13,8 +13,10 @@ module ActiveModel
           serializer = options[:each_serializer] ||
             options[:serializer] ||
             object.klass.active_model_serializer
-          includes_options = serializer.includes_for(object.klass)
-          @object = object.includes(includes_options)
+          if serializer
+            includes_options = serializer.includes_for(object.klass)
+            @object = object.includes(includes_options)
+          end
         end
       end
 
