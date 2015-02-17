@@ -239,7 +239,7 @@ module ActiveModel
           # If the association cannot be found it means it is computed so it
           # cannot be auto included.
           if association = klass.reflect_on_association(attr)
-            serializer = options[:serializer] || association.klass.try(:active_model_serializer)
+            serializer = options[:serializer] || (!options[:polymorphic] && association.klass.try(:active_model_serializer))
             # If we don't check whether we've visited this serializer before,
             # any cycle in associations (which are extremely common) will cause
             # a stack overflow.
