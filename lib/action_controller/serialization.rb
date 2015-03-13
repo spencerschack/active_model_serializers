@@ -39,7 +39,7 @@ module ActionController
     def default_serializer_options
     end
 
-    def _render_option_json(resource, options)
+    def _render_with_renderer_json(resource, options)
       json = ActiveModel::Serializer.build_json(self, resource, options)
 
       if json
